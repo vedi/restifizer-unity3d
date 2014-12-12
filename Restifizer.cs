@@ -7,6 +7,7 @@ public class Restifizer: RestifizerParams {
 
 	private string clientId;
 	private string clientSecret;
+	private string accessToken;
 
 	public Restifizer(string baseUrl) {
 		this.baseUrl = baseUrl;
@@ -15,6 +16,11 @@ public class Restifizer: RestifizerParams {
 	public Restifizer ConfigClientAuth(string clientId, string clientSecret) {
 		this.clientId = clientId;
 		this.clientSecret = clientSecret;
+		return this;
+	}
+
+	public Restifizer ConfigBearerAuth(string accessToken) {
+		this.accessToken = accessToken;
 		return this;
 	}
 
@@ -34,5 +40,8 @@ public class Restifizer: RestifizerParams {
 	public string GetClientSecret() {
 		return clientSecret;
 	}
-	
+
+	public string GetAccessToken() {
+		return accessToken;
+	}
 }

@@ -6,7 +6,7 @@ public class RestifizerRequest {
 	enum AuthType {
 		None,
 		Client,
-		AccessToken
+		Bearer
 	};
 	public string Path;
 	public string Method;
@@ -30,7 +30,13 @@ public class RestifizerRequest {
 		return this;
 	}
 	
-    public RestifizerRequest Filter(String key, object value) {
+	public RestifizerRequest WithBearerAuth() {
+		this.authType = AuthType.Bearer;
+		
+		return this;
+	}
+	
+	public RestifizerRequest Filter(String key, object value) {
         if (filterParams == null) {
             filterParams = new Hashtable();
         }
@@ -105,6 +111,9 @@ public class RestifizerRequest {
 			parameters.Add( "client_secret", restifizerParams.GetClientSecret() );
 
             someRequest = new HTTP.Request(method, url, parameters);
+		} else if (this.authType == AuthType.Bearer) {
+			someRequest = new HTTP.Request(method, url);
+			someRequest.SetHeader("Authorization", "Bearer " + restifizerParams.GetAccessToken());
 		} else {
             someRequest = new HTTP.Request(method, url);
 		}
