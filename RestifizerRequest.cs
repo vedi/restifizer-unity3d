@@ -112,7 +112,12 @@ public class RestifizerRequest {
 
             someRequest = new HTTP.Request(method, url, parameters);
 		} else if (this.authType == AuthType.Bearer) {
-			someRequest = new HTTP.Request(method, url);
+			if (parameters == null) {
+				someRequest = new HTTP.Request(method, url);
+			}
+			else{
+				someRequest = new HTTP.Request(method, url, parameters);
+			}
 			someRequest.SetHeader("Authorization", "Bearer " + restifizerParams.GetAccessToken());
 		} else {
             someRequest = new HTTP.Request(method, url);
