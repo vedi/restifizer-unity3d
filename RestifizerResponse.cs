@@ -14,14 +14,16 @@ namespace Restifizer {
 		public RestifizerResponse(int status, Hashtable result, string tag) {
 			this.IsList = false;
 			this.Status = status;
+			this.Resource = result;
 			this.HasError = false;
-			this.Tag = tag;
+            this.Tag = tag;
 		}
 
 		public RestifizerResponse(int status, ArrayList result, string tag) {
 			this.IsList = true;
 			this.Status = status;
-			this.HasError = false;
+			this.ResourceList = result;
+            this.HasError = false;
 			this.Tag = tag;
 		}
 
