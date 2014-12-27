@@ -12,15 +12,18 @@ namespace Restifizer {
 		public string Path;
 		public string Method;
 		public bool FetchList = true;
-		
+		public string Tag;
+
 		private Hashtable filterParams;
 		
 		private AuthType authType = AuthType.None;
 		
 		private RestifizerParams restifizerParams;
+		private IErrorHandler errorHandler;
 		
-		public RestifizerRequest(RestifizerParams restifizerParams) {
+		public RestifizerRequest(RestifizerParams restifizerParams, IErrorHandler errorHandler) {
 			this.restifizerParams = restifizerParams;
+			this.errorHandler = errorHandler;
 			
 			this.Path = "";
 		}
@@ -36,7 +39,13 @@ namespace Restifizer {
 			
 			return this;
 		}
-		
+
+		public RestifizerRequest WithTag(string tag) {
+			this.Tag = tag;
+			
+			return this;
+		}
+
 		public RestifizerRequest Filter(String key, object value) {
 			if (filterParams == null) {
 				filterParams = new Hashtable();
@@ -75,7 +84,7 @@ namespace Restifizer {
 		}
 		
 		public RestifizerRequest Copy() {
-			RestifizerRequest restifizerRequest = new RestifizerRequest(restifizerParams);
+			RestifizerRequest restifizerRequest = new RestifizerRequest(restifizerParams, errorHandler);
 			restifizerRequest.Path = Path;
 			restifizerRequest.Method = Method;
 			restifizerRequest.FetchList = FetchList;
@@ -123,26 +132,52 @@ namespace Restifizer {
 			} else {
 				someRequest = new HTTP.Request(method, url);
 			}
-			
+
+			string tag = this.Tag;
 			// Perform request
 			someRequest.Send( ( request ) => {
 				if (request.response == null) {
-					Debug.LogWarning( "Server is not available"); // TODO: Get sure
-					callback(null);
+					RestifizerError error = RestifizerErrorFactory.Create(-1, null, tag);
+					if (errorHandler != null) {
+						bool propagateResult = !errorHandler.onRestifizerError(error);
+						if (propagateResult) {
+							callback(null);
+						}
+					} else {
+						callback(null);
+					}
 					return;
 				}
 				bool result = false;
 				object responseResult = JSON.JsonDecode(request.response.Text, ref result);
 				if (!result) {
-					Debug.LogWarning( "Could not parse JSON response!" );
-					callback(null);
+					RestifizerError error = RestifizerErrorFactory.Create(-2, request.response.Text, tag);
+					if (errorHandler != null) {
+						bool propagateResult = !errorHandler.onRestifizerError(error);
+						if (propagateResult) {
+							callback(null);
+						}
+					} else {
+						callback(null);
+					}
 					return;
 				}
-				
-				if (responseResult is ArrayList) {
-					callback(new RestifizerResponse(request.response.status, (ArrayList)responseResult));
+
+				bool hasError = request.response.status >= 300;
+				if (hasError) {
+					RestifizerError error = RestifizerErrorFactory.Create(request.response.status, responseResult, tag);
+					if (errorHandler != null) {
+						bool propagateResult = !errorHandler.onRestifizerError(error);
+						if (propagateResult) {
+							callback(new RestifizerResponse(request.response.status, error, tag));
+						}
+					} else {
+						callback(new RestifizerResponse(request.response.status, error, tag));
+					}
+				} else if (responseResult is ArrayList) {
+					callback(new RestifizerResponse(request.response.status, (ArrayList)responseResult, tag));
 				} else if (responseResult is Hashtable) {
-					callback(new RestifizerResponse(request.response.status, (Hashtable)responseResult));
+					callback(new RestifizerResponse(request.response.status, (Hashtable)responseResult, tag));
 				} else {
 					Debug.LogWarning("Unsupported type in response: " + responseResult.GetType());
 					callback(null);
