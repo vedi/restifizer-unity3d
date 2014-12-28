@@ -28,7 +28,7 @@ namespace Restifizer {
 			return this;
 		}
 		
-		public RestifizerRequest Resource(string resourceName) {
+		public RestifizerRequest ResourceAt(string resourceName) {
 			RestifizerRequest restifizerRequest = new RestifizerRequest(this, (IErrorHandler)errorHandler);
 			restifizerRequest.FetchList = true;
 			restifizerRequest.Path += baseUrl + "/" + resourceName;

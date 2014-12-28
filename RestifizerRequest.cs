@@ -13,6 +13,9 @@ namespace Restifizer {
 		public string Method;
 		public bool FetchList = true;
 		public string Tag;
+		public int PageNumber = -1;
+		public int PageSize = -1;
+
 
 		private Hashtable filterParams;
 		
@@ -54,6 +57,25 @@ namespace Restifizer {
 			
 			return this;
 		}
+
+		public RestifizerRequest Page(int pageNumber, int pageSize) {
+			this.PageNumber = pageNumber;
+			this.PageSize = pageSize;
+			
+			return this;
+		}
+		
+		public RestifizerRequest Page(int pageNumber) {
+			this.PageNumber = pageNumber;
+
+			return this;
+		}
+
+		public RestifizerRequest SetPageSize(int pageSize) {
+			this.PageSize = pageSize;
+			
+			return this;
+		}
 		
 		public RestifizerRequest One(String id) {
 			this.Path += "/" + id;
@@ -87,6 +109,9 @@ namespace Restifizer {
 			RestifizerRequest restifizerRequest = new RestifizerRequest(restifizerParams, errorHandler);
 			restifizerRequest.Path = Path;
 			restifizerRequest.Method = Method;
+			restifizerRequest.Tag = Tag;
+			restifizerRequest.PageNumber = PageNumber;
+			restifizerRequest.PageSize = PageSize;
 			restifizerRequest.FetchList = FetchList;
 			if (filterParams != null) {
 				restifizerRequest.filterParams = filterParams.Clone() as Hashtable;
@@ -101,12 +126,29 @@ namespace Restifizer {
 			
 			string url = Path;
 			string queryStr = "";
-			
+
+			// paging
+			if (PageNumber != -1) {
+				if (queryStr.Length > 0) {
+					queryStr += "&";
+				}
+				queryStr += "per_page=" + PageNumber;
+			}
+			if (PageSize != -1) {
+				if (queryStr.Length > 0) {
+					queryStr += "&";
+				}
+				queryStr += "page=" + PageSize;
+			}
+
+			// filtering
 			if (filterParams != null && filterParams.Count > 0) {
+				if (queryStr.Length > 0) {
+					queryStr += "&";
+				}
 				string filterValue = JSON.JsonEncode(filterParams);
 				queryStr += "filter=" + filterValue;
 			}
-			
 			if (queryStr.Length > 0) {
 				url += "?" + queryStr;
 			}
