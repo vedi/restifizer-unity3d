@@ -18,7 +18,9 @@ namespace Restifizer {
 
 
 		private Hashtable filterParams;
-		
+
+		private Hashtable extraQuery;
+
 		private AuthType authType = AuthType.None;
 		
 		private RestifizerParams restifizerParams;
@@ -58,6 +60,15 @@ namespace Restifizer {
 			return this;
 		}
 
+		public RestifizerRequest Query(String key, object value) {
+			if (extraQuery == null) {
+				extraQuery = new Hashtable();
+			}
+			extraQuery[key] = value;
+			
+			return this;
+		}
+		
 		public RestifizerRequest Page(int pageNumber, int pageSize) {
 			this.PageNumber = pageNumber;
 			this.PageSize = pageSize;
@@ -116,6 +127,9 @@ namespace Restifizer {
 			if (filterParams != null) {
 				restifizerRequest.filterParams = filterParams.Clone() as Hashtable;
 			}
+			if (extraQuery != null) {
+				restifizerRequest.extraQuery = extraQuery.Clone() as Hashtable;
+			}
 			restifizerRequest.authType = authType;
 			return restifizerRequest;
 		}
@@ -149,6 +163,17 @@ namespace Restifizer {
 				string filterValue = JSON.JsonEncode(filterParams);
 				queryStr += "filter=" + filterValue;
 			}
+
+			// extra params
+			if (extraQuery != null && extraQuery.Count > 0) {
+				foreach (string key in extraQuery.Keys) {
+					if (queryStr.Length > 0) {
+						queryStr += "&";
+					}
+					queryStr += key + "=" + extraQuery[key];
+				}
+			}
+
 			if (queryStr.Length > 0) {
 				url += "?" + queryStr;
 			}
