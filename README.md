@@ -179,5 +179,4 @@ For example,
     }
 ```
 
-## Licence
 
