@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using HTTP;
 
 namespace Restifizer {
 	public class RestifizerResponse {
@@ -10,27 +11,31 @@ namespace Restifizer {
 		public RestifizerError Error;
 		public int Status;
 		public string Tag;
+		public HTTP.Request Request;
 		
-		public RestifizerResponse(int status, Hashtable result, string tag) {
+		public RestifizerResponse(HTTP.Request request, Hashtable result, string tag) {
 			this.IsList = false;
-			this.Status = status;
+			this.Status = request.response.status;
 			this.Resource = result;
 			this.HasError = false;
+			this.Request = request;
             this.Tag = tag;
 		}
 
-		public RestifizerResponse(int status, ArrayList result, string tag) {
+		public RestifizerResponse(HTTP.Request request, ArrayList result, string tag) {
 			this.IsList = true;
-			this.Status = status;
+			this.Status = request.response.status;
 			this.ResourceList = result;
             this.HasError = false;
+			this.Request = request;
 			this.Tag = tag;
 		}
 
-		public RestifizerResponse(int status, RestifizerError error, string tag) {
-			this.Status = status;
+		public RestifizerResponse(HTTP.Request request, RestifizerError error, string tag) {
+			this.Status = request.response.status;
 			this.HasError = true;
 			this.Error = error;
+			this.Request = request;
 			this.Tag = tag;
 		}
 	}
