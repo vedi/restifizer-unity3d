@@ -236,15 +236,15 @@ namespace Restifizer {
 					if (errorHandler != null) {
 						bool propagateResult = !errorHandler.onRestifizerError(error);
 						if (propagateResult) {
-							callback(new RestifizerResponse(request.response.status, error, tag));
+							callback(new RestifizerResponse(request, error, tag));
 						}
 					} else {
-						callback(new RestifizerResponse(request.response.status, error, tag));
+						callback(new RestifizerResponse(request, error, tag));
 					}
 				} else if (responseResult is ArrayList) {
-					callback(new RestifizerResponse(request.response.status, (ArrayList)responseResult, tag));
+					callback(new RestifizerResponse(request, (ArrayList)responseResult, tag));
 				} else if (responseResult is Hashtable) {
-					callback(new RestifizerResponse(request.response.status, (Hashtable)responseResult, tag));
+					callback(new RestifizerResponse(request, (Hashtable)responseResult, tag));
 				} else {
 					Debug.LogWarning("Unsupported type in response: " + responseResult.GetType());
 					callback(null);
