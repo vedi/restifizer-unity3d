@@ -6,10 +6,15 @@ namespace Restifizer {
 		
 		public string baseUrl;
 		public MonoBehaviour errorHandler;
+		public static RestifizerManager Instance;
 		
 		private string clientId;
 		private string clientSecret;
 		private string accessToken;
+		
+		void Start () {
+			Instance = this;
+		}
 
 		void Awake() {
 			if (errorHandler != null && !(errorHandler is IErrorHandler)) {
