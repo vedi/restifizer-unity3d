@@ -191,13 +191,16 @@ namespace Restifizer {
 			} else if (this.authType == AuthType.Bearer) {
 				if (parameters == null) {
 					someRequest = new HTTP.Request(method, url);
-				}
-				else{
+				} else {
 					someRequest = new HTTP.Request(method, url, parameters);
 				}
 				someRequest.SetHeader("Authorization", "Bearer " + restifizerParams.GetAccessToken());
 			} else {
-				someRequest = new HTTP.Request(method, url);
+				if (parameters == null) {
+					someRequest = new HTTP.Request(method, url);
+				} else {
+					someRequest = new HTTP.Request(method, url, parameters);
+				}
 			}
 
 			string tag = this.Tag;
