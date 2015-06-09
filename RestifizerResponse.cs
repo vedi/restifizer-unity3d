@@ -13,6 +13,13 @@ namespace Restifizer {
 		public string Tag;
 		public HTTP.Request Request;
 		
+		public Hashtable getFirst () {
+			IEnumerator enumerator = ResourceList.GetEnumerator();
+			enumerator.MoveNext();
+
+			return (Hashtable)enumerator.Current;
+		}
+		
 		public RestifizerResponse(HTTP.Request request, Hashtable result, string tag) {
 			this.IsList = false;
 			this.Status = request.response.status;
