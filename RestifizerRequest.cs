@@ -104,6 +104,10 @@ namespace Restifizer {
 			performRequest("get", null, callback);
 		}
 		
+		public void Get(Hashtable parameters = null, Action<RestifizerResponse> callback = null) {
+			performRequest("get", parameters, callback);
+		}
+		
 		public void Post(Hashtable parameters = null, Action<RestifizerResponse> callback = null) {
 			performRequest("post", parameters, callback);
 		}
@@ -132,6 +136,16 @@ namespace Restifizer {
 			}
 			restifizerRequest.authType = authType;
 			return restifizerRequest;
+		}
+		
+		private string addQuery (string currentStr, Hashtable parameters) {
+			foreach (string key in parameters.Keys) {
+				if (currentStr.Length > 0) {
+					currentStr += "&";
+				}
+				currentStr += key + "=" + parameters[key];
+			}
+			return currentStr;
 		}
 		
 		private void performRequest(string method, Hashtable parameters = null, Action<RestifizerResponse> callback = null) {
@@ -166,12 +180,12 @@ namespace Restifizer {
 
 			// extra params
 			if (extraQuery != null && extraQuery.Count > 0) {
-				foreach (string key in extraQuery.Keys) {
-					if (queryStr.Length > 0) {
-						queryStr += "&";
-					}
-					queryStr += key + "=" + extraQuery[key];
-				}
+				queryStr = addQuery(queryStr, extraQuery);
+			}
+
+			if (method == "get" && parameters != null && parameters.Count > 0) {
+				queryStr = addQuery(queryStr, parameters);
+				parameters = null;
 			}
 
 			if (queryStr.Length > 0) {
