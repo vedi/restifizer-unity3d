@@ -22,32 +22,32 @@ namespace Restifizer {
 		private Hashtable extraQuery;
 
 		private AuthType authType = AuthType.None;
-		
+
 		private RestifizerParams restifizerParams;
 		private IErrorHandler errorHandler;
-		
+
 		public RestifizerRequest(RestifizerParams restifizerParams, IErrorHandler errorHandler) {
 			this.restifizerParams = restifizerParams;
 			this.errorHandler = errorHandler;
-			
+
 			this.Path = "";
 		}
-		
+
 		public RestifizerRequest WithClientAuth() {
 			this.authType = AuthType.Client;
-			
+
 			return this;
 		}
-		
+
 		public RestifizerRequest WithBearerAuth() {
 			this.authType = AuthType.Bearer;
-			
+
 			return this;
 		}
 
 		public RestifizerRequest WithTag(string tag) {
 			this.Tag = tag;
-			
+
 			return this;
 		}
 
@@ -56,7 +56,7 @@ namespace Restifizer {
 				filterParams = new Hashtable();
 			}
 			filterParams[key] = value;
-			
+
 			return this;
 		}
 
@@ -65,17 +65,17 @@ namespace Restifizer {
 				extraQuery = new Hashtable();
 			}
 			extraQuery[key] = value;
-			
+
 			return this;
 		}
-		
+
 		public RestifizerRequest Page(int pageNumber, int pageSize) {
 			this.PageNumber = pageNumber;
 			this.PageSize = pageSize;
-			
+
 			return this;
 		}
-		
+
 		public RestifizerRequest Page(int pageNumber) {
 			this.PageNumber = pageNumber;
 
@@ -84,38 +84,38 @@ namespace Restifizer {
 
 		public RestifizerRequest SetPageSize(int pageSize) {
 			this.PageSize = pageSize;
-			
+
 			return this;
 		}
-		
+
 		public RestifizerRequest One(String id) {
 			this.Path += "/" + id;
 			this.FetchList = false;
-			
+
 			return this;
 		}
-		
+
 		public void List(String path) {
 			this.Path += "/" + path;
 			this.FetchList = true;
 		}
-		
+
 		public void Get(Action<RestifizerResponse> callback = null) {
 			performRequest("get", null, callback);
 		}
-		
+
 		public void Post(Hashtable parameters = null, Action<RestifizerResponse> callback = null) {
 			performRequest("post", parameters, callback);
 		}
-		
+
 		public void Put(Hashtable parameters = null, Action<RestifizerResponse> callback = null) {
 			performRequest("put", parameters, callback);
 		}
-		
+
 		public void Patch(Hashtable parameters = null, Action<RestifizerResponse> callback = null) {
 			performRequest("patch", parameters, callback);
 		}
-		
+
 		public RestifizerRequest Copy() {
 			RestifizerRequest restifizerRequest = new RestifizerRequest(restifizerParams, errorHandler);
 			restifizerRequest.Path = Path;
@@ -133,11 +133,11 @@ namespace Restifizer {
 			restifizerRequest.authType = authType;
 			return restifizerRequest;
 		}
-		
+
 		private void performRequest(string method, Hashtable parameters = null, Action<RestifizerResponse> callback = null) {
-			
-			HTTP.Request someRequest;
-			
+
+			UnityHTTP.Request someRequest;
+
 			string url = Path;
 			string queryStr = "";
 
@@ -177,8 +177,8 @@ namespace Restifizer {
 			if (queryStr.Length > 0) {
 				url += "?" + queryStr;
 			}
-			
-			
+
+
 			// Handle authentication
 			if (this.authType == AuthType.Client) {
 				if (parameters == null) {
@@ -186,20 +186,20 @@ namespace Restifizer {
 				}
 				parameters.Add( "client_id", restifizerParams.GetClientId() );
 				parameters.Add( "client_secret", restifizerParams.GetClientSecret() );
-				
-				someRequest = new HTTP.Request(method, url, parameters);
+
+				someRequest = new UnityHTTP.Request(method, url, parameters);
 			} else if (this.authType == AuthType.Bearer) {
 				if (parameters == null) {
-					someRequest = new HTTP.Request(method, url);
+					someRequest = new UnityHTTP.Request(method, url);
 				} else {
-					someRequest = new HTTP.Request(method, url, parameters);
+					someRequest = new UnityHTTP.Request(method, url, parameters);
 				}
 				someRequest.SetHeader("Authorization", "Bearer " + restifizerParams.GetAccessToken());
 			} else {
 				if (parameters == null) {
-					someRequest = new HTTP.Request(method, url);
+					someRequest = new UnityHTTP.Request(method, url);
 				} else {
-					someRequest = new HTTP.Request(method, url, parameters);
+					someRequest = new UnityHTTP.Request(method, url, parameters);
 				}
 			}
 
